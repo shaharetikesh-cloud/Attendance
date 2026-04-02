@@ -35,7 +35,7 @@ pypdf==6.9.2
 pyphen==0.17.2
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
-pythonnet==3.0.5
+clr_loader==...
 pywebview==5.4
 pywin32-ctypes==0.2.3
 reportlab==4.1.0
