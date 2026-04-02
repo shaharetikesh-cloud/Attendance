@@ -1,0 +1,78 @@
+from django import forms
+from django.contrib.auth.models import User
+
+from easy.models import AppSetting, Substation
+
+from .models import SignupRequest, UserProfile
+
+
+class SignupForm(forms.Form):
+    full_name = forms.CharField(max_length=200)
+    username = forms.CharField(max_length=150)
+    email = forms.EmailField(required=False)
+    mobile_no = forms.CharField(max_length=20, required=False)
+    requested_substation = forms.ModelChoiceField(queryset=Substation.objects.filter(is_active=True).order_by('substation_name'), required=False)
+    password1 = forms.CharField(widget=forms.PasswordInput)
+    password2 = forms.CharField(widget=forms.PasswordInput)
+
+    def clean_username(self):
+        username = self.cleaned_data['username'].strip()
+        if User.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError('This username already exists.')
+        return username
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get('password1') != cleaned_data.get('password2'):
+            self.add_error('password2', 'Passwords do not match.')
+        return cleaned_data
+
+    def save(self):
+        user = User.objects.create_user(
+            username=self.cleaned_data['username'],
+            password=self.cleaned_data['password1'],
+            email=self.cleaned_data.get('email', ''),
+            is_active=False,
+        )
+        profile = user.profile
+        profile.mobile_no = self.cleaned_data.get('mobile_no', '')
+        profile.role = UserProfile.ROLE_DATA_ENTRY
+        profile.save()
+        SignupRequest.objects.create(
+            user=user,
+            full_name=self.cleaned_data['full_name'],
+            mobile_no=self.cleaned_data.get('mobile_no', ''),
+            requested_role=UserProfile.ROLE_DATA_ENTRY,
+            requested_substation=self.cleaned_data.get('requested_substation'),
+        )
+        return user
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['role', 'mobile_no', 'is_active']
+
+
+class UserAccessForm(forms.Form):
+    substations = forms.ModelMultipleChoiceField(
+        queryset=Substation.objects.order_by('substation_name'),
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+
+class SignupApprovalForm(forms.Form):
+    action = forms.ChoiceField(choices=[('approve', 'Approve'), ('reject', 'Reject')])
+    role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES)
+    substations = forms.ModelMultipleChoiceField(
+        queryset=Substation.objects.order_by('substation_name'),
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+    )
+    admin_remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
+
+
+class SimpleSettingForm(forms.Form):
+    self_signup_enabled = forms.BooleanField(required=False)
+    approval_required = forms.BooleanField(required=False)

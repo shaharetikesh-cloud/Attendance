@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: msedcl-easy-attendance
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn msedcl_easy_attendance.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: msedcl_easy_attendance.settings_production
+      - key: DEBUG
+        value: false
+
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SECURE_SSL_REDIRECT
+        value: true
+      - key: DB_ENGINE
+        value: postgresql
