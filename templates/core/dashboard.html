@@ -2,37 +2,268 @@
 {% block title %}Dashboard | MSEDCL Easy Attendance{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 {% block page_subtitle %}Role-based access, approval-ready attendance, and per-user substation control{% endblock %}
+
 {% block content %}
 <div class="row g-4">
-    <div class="col-md-6 col-xl-3"><div class="card panel-card stat-card"><div class="card-body"><div class="stat-card__label">My Substations</div><div class="stat-card__value">{{ substation_count }}</div><div class="text-muted small">{{ active_substation_count }} active locations</div></div></div></div>
-    <div class="col-md-6 col-xl-3"><div class="card panel-card stat-card"><div class="card-body"><div class="stat-card__label">Operators</div><div class="stat-card__value">{{ operator_count }}</div><div class="text-muted small">Visible as per your access</div></div></div></div>
-    <div class="col-md-6 col-xl-3"><div class="card panel-card stat-card"><div class="card-body"><div class="stat-card__label">Tech / Engineers</div><div class="stat-card__value">{{ tech_count }}</div><div class="text-muted small">Visible as per your access</div></div></div></div>
-    <div class="col-md-6 col-xl-3"><div class="card panel-card stat-card"><div class="card-body"><div class="stat-card__label">Pending Approvals</div><div class="stat-card__value">{{ pending_approval_count }}</div><div class="text-muted small">Approval mode: {% if approval_required %}ON{% else %}OFF{% endif %}</div></div></div></div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card panel-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-card__label">My Substations</div>
+                <div class="stat-card__value">{{ substation_count }}</div>
+                <div class="text-muted small">{{ active_substation_count }} active locations</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card panel-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-card__label">Operators</div>
+                <div class="stat-card__value">{{ operator_count }}</div>
+                <div class="text-muted small">Visible as per your access</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card panel-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-card__label">Tech / Engineers</div>
+                <div class="stat-card__value">{{ tech_count }}</div>
+                <div class="text-muted small">Visible as per your access</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card panel-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-card__label">Pending Approvals</div>
+                <div class="stat-card__value">{{ pending_approval_count }}</div>
+                <div class="text-muted small">Approval mode: {% if approval_required %}ON{% else %}OFF{% endif %}</div>
+            </div>
+        </div>
+    </div>
 </div>
+
+{% if is_admin_role %}
+<div class="row g-4 mt-1">
+    <div class="col-md-6 col-xl-3">
+        <div class="card panel-card stat-card h-100 border-warning-subtle">
+            <div class="card-body">
+                <div class="stat-card__label">Pending Signup Requests</div>
+                <div class="stat-card__value">{{ pending_signup_count }}</div>
+                <div class="text-muted small">New users waiting for admin action</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card panel-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-card__label">Operator Sheets</div>
+                <div class="stat-card__value">{{ operator_sheet_count }}</div>
+                <div class="text-muted small">Visible monthly records</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card panel-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-card__label">Advance Shift Sheets</div>
+                <div class="stat-card__value">{{ advance_sheet_count }}</div>
+                <div class="text-muted small">Advance duty planning records</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card panel-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-card__label">Other Attendance Sheets</div>
+                <div class="stat-card__value">{{ tech_sheet_count|add:apprentice_sheet_count|add:outsource_sheet_count }}</div>
+                <div class="text-muted small">Tech + Apprentice + Outsource</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="row g-4 mt-1">
     <div class="col-xl-8">
-        <div class="card panel-card"><div class="card-body p-4">
-            <h2 class="h4 mb-3">Quick Actions</h2>
-            <div class="d-grid gap-3 d-md-flex flex-wrap">
-                <a href="{% url 'easy:operator_chart' %}" class="btn btn-primary btn-lg action-btn">Operator Chart</a>
-                <a href="{% url 'easy:advance_shift_chart' %}" class="btn btn-outline-primary btn-lg action-btn">Advance Shift</a>
-                <a href="{% url 'easy:tech_attendance' %}" class="btn btn-outline-primary btn-lg action-btn">Tech Attendance</a>
-                <a href="{% url 'easy:apprentice_attendance' %}" class="btn btn-outline-primary btn-lg action-btn">Apprentice</a>
-                <a href="{% url 'easy:outsource_attendance' %}" class="btn btn-outline-primary btn-lg action-btn">Outsource</a>
-                <a href="{% url 'easy:approval_queue' %}" class="btn btn-outline-secondary btn-lg action-btn">Approval Queue</a>
+        <div class="card panel-card">
+            <div class="card-body p-4">
+                <h2 class="h4 mb-3">Quick Actions</h2>
+                <div class="d-grid gap-3 d-md-flex flex-wrap">
+                    <a href="{% url 'easy:operator_chart' %}" class="btn btn-primary btn-lg action-btn">Operator Chart</a>
+                    <a href="{% url 'easy:advance_shift_chart' %}" class="btn btn-outline-primary btn-lg action-btn">Advance Shift</a>
+                    <a href="{% url 'easy:tech_attendance' %}" class="btn btn-outline-primary btn-lg action-btn">Tech Attendance</a>
+                    <a href="{% url 'easy:apprentice_attendance' %}" class="btn btn-outline-primary btn-lg action-btn">Apprentice</a>
+                    <a href="{% url 'easy:outsource_attendance' %}" class="btn btn-outline-primary btn-lg action-btn">Outsource</a>
+                    <a href="{% url 'easy:approval_queue' %}" class="btn btn-outline-secondary btn-lg action-btn">Approval Queue</a>
+
+                    {% if is_admin_role %}
+                        <a href="{% url 'signup_requests' %}" class="btn btn-outline-warning btn-lg action-btn">
+                            Signup Requests
+                            {% if pending_signup_count %}
+                                <span class="badge text-bg-warning ms-1">{{ pending_signup_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'user_management' %}" class="btn btn-outline-dark btn-lg action-btn">User Management</a>
+                        <a href="{% url 'system_settings' %}" class="btn btn-outline-dark btn-lg action-btn">System Settings</a>
+                    {% endif %}
+                </div>
             </div>
-        </div></div>
+        </div>
     </div>
+
     <div class="col-xl-4">
-        <div class="card panel-card"><div class="card-body p-4">
-            <h2 class="h5 mb-3">System Summary</h2>
-            <ul class="list-unstyled mb-0 small text-muted d-grid gap-2">
-                <li>Your role: <strong>{{ role }}</strong></li>
-                <li>Self signup: {% if self_signup_enabled %}enabled{% else %}disabled{% endif %}</li>
-                <li>Approval flow: {% if approval_required %}draft / submit / approve{% else %}direct save and PDF{% endif %}</li>
-                <li>More settings and operator logic master are available in Django Admin.</li>
-            </ul>
-        </div></div>
+        <div class="card panel-card">
+            <div class="card-body p-4">
+                <h2 class="h5 mb-3">System Summary</h2>
+                <ul class="list-unstyled mb-0 small text-muted d-grid gap-2">
+                    <li>Your role: <strong>{{ role }}</strong></li>
+                    <li>Self signup: {% if self_signup_enabled %}enabled{% else %}disabled{% endif %}</li>
+                    <li>Approval flow: {% if approval_required %}draft / submit / approve{% else %}direct save and PDF{% endif %}</li>
+                    <li>Visible substations: <strong>{{ substation_count }}</strong></li>
+                    {% if is_admin_role %}
+                        <li>Pending signup requests: <strong>{{ pending_signup_count }}</strong></li>
+                    {% endif %}
+                    <li>More settings and operator logic master are available in Django Admin.</li>
+                </ul>
+            </div>
+        </div>
     </div>
 </div>
+
+{% if is_admin_role %}
+<div class="row g-4 mt-1">
+    <div class="col-lg-6">
+        <div class="card panel-card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 mb-0">Recent Signup Requests</h2>
+                    <a href="{% url 'signup_requests' %}" class="btn btn-sm btn-outline-primary">Open</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>User</th>
+                                <th>Status</th>
+                                <th>Substation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in recent_signup_requests %}
+                                <tr>
+                                    <td>{{ item.full_name }}</td>
+                                    <td>{{ item.user.username }}</td>
+                                    <td>
+                                        {% if item.status == 'pending' %}
+                                            <span class="badge text-bg-warning">Pending</span>
+                                        {% elif item.status == 'approved' %}
+                                            <span class="badge text-bg-success">Approved</span>
+                                        {% else %}
+                                            <span class="badge text-bg-danger">Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ item.requested_substation|default:'-' }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No signup requests found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card panel-card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 mb-0">Recent Users</h2>
+                    <a href="{% url 'user_management' %}" class="btn btn-sm btn-outline-primary">Manage</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in recent_users %}
+                                <tr>
+                                    <td>{{ item.username }}</td>
+                                    <td>
+                                        {% if item.profile %}
+                                            {{ item.profile.get_role_display }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if item.is_active %}
+                                            <span class="badge text-bg-success">Yes</span>
+                                        {% else %}
+                                            <span class="badge text-bg-secondary">No</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">No users found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-12">
+        <div class="card panel-card">
+            <div class="card-body p-4">
+                <h2 class="h5 mb-3">Substation User Assignment Summary</h2>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Substation</th>
+                                <th>Assigned Users</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in substation_user_breakdown %}
+                                <tr>
+                                    <td>{{ item.substation_name }}</td>
+                                    <td>{{ item.assigned_user_count }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">No substation data found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
