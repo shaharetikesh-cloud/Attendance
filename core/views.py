@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 
 from easy.models import (
@@ -30,9 +31,11 @@ def _self_signup_enabled():
 
 @login_required
 def dashboard(request):
+    role = get_user_role(request.user)
     allowed_substations = get_allowed_substations(request.user)
+
     context = {
-        'role': get_user_role(request.user),
+        'role': role,
         'substation_count': allowed_substations.count(),
         'active_substation_count': allowed_substations.filter(is_active=True).count(),
         'operator_count': Employee.objects.filter(
@@ -49,11 +52,17 @@ def dashboard(request):
         'apprentice_sheet_count': ApprenticeAttendanceSheet.objects.filter(substation__in=allowed_substations).count(),
         'outsource_sheet_count': OutsourceAttendanceSheet.objects.filter(substation__in=allowed_substations).count(),
         'pending_approval_count': 0,
+        'pending_signup_count': 0,
         'approval_required': _approval_required(),
         'self_signup_enabled': _self_signup_enabled(),
+        'is_admin_role': role in ADMIN_ROLES,
+        'is_approver_role': role in APPROVER_ROLES,
+        'recent_signup_requests': [],
+        'recent_users': [],
+        'substation_user_breakdown': [],
     }
 
-    if get_user_role(request.user) in APPROVER_ROLES:
+    if role in APPROVER_ROLES:
         pending_count = 0
         for model in (
             OperatorAttendanceSheet,
@@ -67,6 +76,24 @@ def dashboard(request):
                 approval_status=MonthlySheetBase.STATUS_PENDING
             ).count()
         context['pending_approval_count'] = pending_count
+
+    if role in ADMIN_ROLES:
+        context['pending_signup_count'] = SignupRequest.objects.filter(
+            status=SignupRequest.STATUS_PENDING
+        ).count()
+
+        context['recent_signup_requests'] = SignupRequest.objects.select_related(
+            'user', 'requested_substation'
+        ).order_by('-created_at')[:5]
+
+        context['recent_users'] = User.objects.select_related('profile').order_by('-date_joined')[:5]
+
+        context['substation_user_breakdown'] = (
+            Substation.objects.annotate(
+                assigned_user_count=Count('user_accesses__user', distinct=True)
+            )
+            .order_by('substation_name')[:10]
+        )
 
     return render(request, 'core/dashboard.html', context)
 
