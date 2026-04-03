@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Outsource Attendance PDF</title>
+    <link rel="stylesheet" href="{{ pdf_stylesheet }}">
+</head>
+<body class="operator-pdf">
+    <div class="operator-sheet">
+        <header class="operator-sheet__header">
+            <div class="operator-sheet__company">OUTSOURCING ATTENDANCE</div>
+            <div class="operator-sheet__station-line">
+                <span>Sub Division: {{ sheet.substation.sub_division_name }}</span>
+                <span>Working Unit: {{ sheet.substation.substation_name }}</span>
+            </div>
+            <div class="operator-sheet__document-title">
+                OUTSOURCE ATTENDANCE FOR THE MONTH OF {{ month_label }}
+            </div>
+        </header>
+
+        <section class="operator-section">
+            <table class="operator-pdf-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2" class="operator-col-sr">Sr. No.</th>
+                        <th rowspan="2" class="operator-col-name">Employee Name</th>
+                        <th rowspan="2" class="operator-col-desig">Desig</th>
+                        <th rowspan="2" class="operator-col-workplace">Working Place</th>
+                        {% for day in chart.days %}
+                            <th class="operator-col-day operator-col-day--weekday">
+                                <span class="operator-day-label">{{ day.weekday }}</span>
+                            </th>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        {% for day in chart.days %}
+                            <th class="operator-col-day operator-col-day--date">{{ day.day_label }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in chart.rows %}
+                        <tr>
+                            <td class="operator-cell-center">{{ row.sr_no }}</td>
+                            <td class="operator-name-cell">
+                                <div class="operator-name-cell__name">{{ row.display_name }}</div>
+                                {% if row.cpf_no %}
+                                    <div class="operator-name-cell__cpf">CPF- {{ row.cpf_no }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="operator-cell-center operator-col-desig">{{ row.designation_short }}</td>
+                            <td class="operator-cell-center operator-col-workplace">{{ row.working_place|default:"--" }}</td>
+                            {% for cell in row.attendance_cells %}
+                                <td class="operator-cell-center operator-col-day">{{ cell.value }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <section class="operator-footer operator-footer--single">
+            <div class="operator-footer__note-box">
+                <div class="operator-footer__note-line">
+                    <span class="operator-footer__label">Certificate :</span>
+                    <span>{{ sheet.certificate_text|default:"-"|linebreaksbr }}</span>
+                </div>
+                <div class="operator-footer__note-line operator-footer__note-line--remark">
+                    <span class="operator-footer__label">Remark :</span>
+                    <span>
+                        {% for line in chart.report_remark_lines %}
+                            {{ line }}{% if not forloop.last %}<br>{% endif %}
+                        {% endfor %}
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <section class="operator-signatures">
+            <div class="operator-signature">
+                <div class="operator-signature__line"></div>
+                <div class="operator-signature__label">Assistant Engineer</div>
+            </div>
+            <div class="operator-signature">
+                <div class="operator-signature__line"></div>
+                <div class="operator-signature__label">Dy. Executive Engineer</div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

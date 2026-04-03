@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}User Management{% endblock %}
+{% block page_title %}User Management{% endblock %}
+{% block page_subtitle %}Assign role, activate user, and control substation visibility{% endblock %}
+{% block content %}
+<div class="row g-4">
+<div class="col-lg-4"><div class="card panel-card"><div class="card-body p-4"><h2 class="h5">Users</h2><div class="list-group">
+{% for user in users %}
+<a class="list-group-item list-group-item-action {% if selected_user and selected_user.pk == user.pk %}active{% endif %}" href="?user_id={{ user.pk }}">
+    <div class="fw-semibold">{{ user.username }}</div>
+    <div class="small">Role: {{ user.profile.get_role_display }}</div>
+    <div class="small">Login: {{ user.profile.is_active|yesno:'Yes,No' }}</div>
+</a>
+{% endfor %}
+</div></div></div></div>
+<div class="col-lg-8"><div class="card panel-card"><div class="card-body p-4">
+{% if selected_user %}
+<form method="post">{% csrf_token %}<input type="hidden" name="user_id" value="{{ selected_user.pk }}">
+<h2 class="h5 mb-3">{{ selected_user.username }}</h2>
+<div class="row g-3 mb-4">
+    {% for field in profile_form %}
+        <div class="col-md-4">
+            <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<div class="form-note mt-1">{{ field.help_text }}</div>{% endif %}
+            {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+        </div>
+    {% endfor %}
+</div>
+<h3 class="h6">Substation Access</h3>
+<div class="form-note mb-2">Per-user data visibility works from this list. User will see only these assigned substations. Admin and Super Admin can see all.</div>
+<div data-visibility-checkbox-list>
+    {{ access_form.substations }}
+</div>
+{% for error in access_form.substations.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+<div class="mt-4"><button class="btn btn-primary">Save User Access</button></div>
+</form>
+{% else %}<div class="text-muted">Select user from left side.</div>{% endif %}
+</div></div></div>
+</div>
+{% endblock %}

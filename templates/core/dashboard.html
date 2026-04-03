@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | MSEDCL Easy Attendance{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Role-based access, approval-ready attendance, and per-user substation control{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-6 col-xl-3"><div class="card panel-card stat-card"><div class="card-body"><div class="stat-card__label">My Substations</div><div class="stat-card__value">{{ substation_count }}</div><div class="text-muted small">{{ active_substation_count }} active locations</div></div></div></div>
+    <div class="col-md-6 col-xl-3"><div class="card panel-card stat-card"><div class="card-body"><div class="stat-card__label">Operators</div><div class="stat-card__value">{{ operator_count }}</div><div class="text-muted small">Visible as per your access</div></div></div></div>
+    <div class="col-md-6 col-xl-3"><div class="card panel-card stat-card"><div class="card-body"><div class="stat-card__label">Tech / Engineers</div><div class="stat-card__value">{{ tech_count }}</div><div class="text-muted small">Visible as per your access</div></div></div></div>
+    <div class="col-md-6 col-xl-3"><div class="card panel-card stat-card"><div class="card-body"><div class="stat-card__label">Pending Approvals</div><div class="stat-card__value">{{ pending_approval_count }}</div><div class="text-muted small">Approval mode: {% if approval_required %}ON{% else %}OFF{% endif %}</div></div></div></div>
+</div>
+<div class="row g-4 mt-1">
+    <div class="col-xl-8">
+        <div class="card panel-card"><div class="card-body p-4">
+            <h2 class="h4 mb-3">Quick Actions</h2>
+            <div class="d-grid gap-3 d-md-flex flex-wrap">
+                <a href="{% url 'easy:operator_chart' %}" class="btn btn-primary btn-lg action-btn">Operator Chart</a>
+                <a href="{% url 'easy:advance_shift_chart' %}" class="btn btn-outline-primary btn-lg action-btn">Advance Shift</a>
+                <a href="{% url 'easy:tech_attendance' %}" class="btn btn-outline-primary btn-lg action-btn">Tech Attendance</a>
+                <a href="{% url 'easy:apprentice_attendance' %}" class="btn btn-outline-primary btn-lg action-btn">Apprentice</a>
+                <a href="{% url 'easy:outsource_attendance' %}" class="btn btn-outline-primary btn-lg action-btn">Outsource</a>
+                <a href="{% url 'easy:approval_queue' %}" class="btn btn-outline-secondary btn-lg action-btn">Approval Queue</a>
+            </div>
+        </div></div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card panel-card"><div class="card-body p-4">
+            <h2 class="h5 mb-3">System Summary</h2>
+            <ul class="list-unstyled mb-0 small text-muted d-grid gap-2">
+                <li>Your role: <strong>{{ role }}</strong></li>
+                <li>Self signup: {% if self_signup_enabled %}enabled{% else %}disabled{% endif %}</li>
+                <li>Approval flow: {% if approval_required %}draft / submit / approve{% else %}direct save and PDF{% endif %}</li>
+                <li>More settings and operator logic master are available in Django Admin.</li>
+            </ul>
+        </div></div>
+    </div>
+</div>
+{% endblock %}
